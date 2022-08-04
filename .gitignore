@@ -5,7 +5,6 @@
 local.properties
 /**/*.iml
 *.iml
-kotlin-js-store/
 firebase-app/src/nativeInterop/cinterop/modules/
 firebase-functions/src/nativeInterop/cinterop/modules/
 firebase-auth/src/nativeInterop/cinterop/modules/

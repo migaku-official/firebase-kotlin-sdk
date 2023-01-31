@@ -33,6 +33,9 @@ buildscript {
 val targetSdkVersion by extra(32)
 val minSdkVersion by extra(19)
 
+val GITHUB_USER: String by project
+val GITHUB_TOKEN: String by project
+
 tasks {
     val updateVersions by registering {
         dependsOn(
@@ -189,10 +192,10 @@ subprojects {
 
         repositories {
             maven {
-                url = uri("https://oss.sonatype.org/service/local/staging/deploy/maven2")
+                url = uri("https://maven.pkg.github.com/migaku-official/firebase-kotlin-sdk")
                 credentials {
-                    username = project.findProperty("sonatypeUsername") as String? ?: System.getenv("sonatypeUsername")
-                    password = project.findProperty("sonatypePassword") as String? ?: System.getenv("sonatypePassword")
+                    username = GITHUB_USER
+                    password = GITHUB_TOKEN
                 }
             }
         }

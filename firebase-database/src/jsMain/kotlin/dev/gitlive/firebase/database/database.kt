@@ -6,7 +6,7 @@ package dev.gitlive.firebase.database
 
 import dev.gitlive.firebase.*
 import dev.gitlive.firebase.FirebaseApp
-import dev.gitlive.firebase.externals.database.*
+import dev.gitlive.firebase.database.externals.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
@@ -14,29 +14,22 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.produceIn
 import kotlinx.coroutines.selects.select
 import kotlinx.serialization.DeserializationStrategy
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerializationStrategy
 import kotlin.js.Promise
 import kotlin.js.json
-import dev.gitlive.firebase.externals.database.DataSnapshot as JsDataSnapshot
-import dev.gitlive.firebase.externals.database.DatabaseReference as JsDatabaseReference
-import dev.gitlive.firebase.externals.database.OnDisconnect as JsOnDisconnect
-import dev.gitlive.firebase.externals.database.Query as JsQuery
-import dev.gitlive.firebase.externals.database.endAt as jsEndAt
-import dev.gitlive.firebase.externals.database.equalTo as jsEqualTo
-import dev.gitlive.firebase.externals.database.limitToFirst as jsLimitToFirst
-import dev.gitlive.firebase.externals.database.limitToLast as jsLimitToLast
-import dev.gitlive.firebase.externals.database.orderByChild as jsOrderByChild
-import dev.gitlive.firebase.externals.database.orderByKey as jsOrderByKey
-import dev.gitlive.firebase.externals.database.orderByValue as jsOrderByValue
-import dev.gitlive.firebase.externals.database.startAt as jsStartAt
-
-@PublishedApi
-internal inline fun <reified T> encode(value: T, shouldEncodeElementDefault: Boolean) =
-    encode(value, shouldEncodeElementDefault, serverTimestamp())
-
-internal fun <T> encode(strategy: SerializationStrategy<T>, value: T, shouldEncodeElementDefault: Boolean): Any? =
-    encode(strategy, value, shouldEncodeElementDefault, serverTimestamp())
-
+import dev.gitlive.firebase.database.externals.DataSnapshot as JsDataSnapshot
+import dev.gitlive.firebase.database.externals.DatabaseReference as JsDatabaseReference
+import dev.gitlive.firebase.database.externals.OnDisconnect as JsOnDisconnect
+import dev.gitlive.firebase.database.externals.Query as JsQuery
+import dev.gitlive.firebase.database.externals.endAt as jsEndAt
+import dev.gitlive.firebase.database.externals.equalTo as jsEqualTo
+import dev.gitlive.firebase.database.externals.limitToFirst as jsLimitToFirst
+import dev.gitlive.firebase.database.externals.limitToLast as jsLimitToLast
+import dev.gitlive.firebase.database.externals.orderByChild as jsOrderByChild
+import dev.gitlive.firebase.database.externals.orderByKey as jsOrderByKey
+import dev.gitlive.firebase.database.externals.orderByValue as jsOrderByValue
+import dev.gitlive.firebase.database.externals.startAt as jsStartAt
 
 actual val Firebase.database
     get() = rethrow { FirebaseDatabase(getDatabase()) }
@@ -149,6 +142,16 @@ actual class DatabaseReference internal constructor(override val js: JsDatabaseR
 
     actual suspend fun <T> setValue(strategy: SerializationStrategy<T>, value: T, encodeDefaults: Boolean) =
         rethrow { set(js, encode(strategy, value, encodeDefaults)).awaitWhileOnline() }
+
+    actual suspend fun <T> runTransaction(strategy: KSerializer<T>, transactionUpdate: (currentData: T) -> T): DataSnapshot =
+        rethrow {
+            val result = runTransaction(
+                js,
+                transactionUpdate,
+            ).awaitWhileOnline()
+
+            DataSnapshot(result.snapshot)
+        }
 }
 
 actual class DataSnapshot internal constructor(val js: JsDataSnapshot) {
@@ -207,7 +210,9 @@ suspend fun <T> Promise<T>.awaitWhileOnline(): T = coroutineScope {
     val notConnected = Firebase.database
         .reference(".info/connected")
         .valueEvents
-        .filter { !it.value<Boolean>() }
+        .filter {
+            !it.value<Boolean>()
+        }
         .produceIn(this)
 
     select<T> {

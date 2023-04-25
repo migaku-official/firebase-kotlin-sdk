@@ -9,7 +9,7 @@ version = project.property("firebase-common.version") as String
 plugins {
     id("com.android.library")
     kotlin("multiplatform")
-    kotlin("plugin.serialization") version "1.6.10"
+    kotlin("plugin.serialization") version "1.8.20"
 }
 
 android {
@@ -57,15 +57,15 @@ kotlin {
         useCommonJs()
         nodejs {
             testTask {
-                useMocha {
-                    timeout = "5s"
+                useKarma {
+                    useChromeHeadless()
                 }
             }
         }
         browser {
             testTask {
-                useMocha {
-                    timeout = "5s"
+                useKarma {
+                    useChromeHeadless()
                 }
             }
         }
@@ -74,8 +74,8 @@ kotlin {
     sourceSets {
         all {
             languageSettings.apply {
-                apiVersion = "1.6"
-                languageVersion = "1.6"
+                apiVersion = "1.8"
+                languageVersion = "1.8"
                 progressiveMode = true
                 optIn("kotlin.Experimental")
                 optIn("kotlinx.coroutines.ExperimentalCoroutinesApi")
@@ -100,9 +100,8 @@ kotlin {
             val iosMain by getting
             val iosSimulatorArm64Main by getting
             iosSimulatorArm64Main.dependsOn(iosMain)
-
             val iosTest by sourceSets.getting
-            val iosSimulatorArm64Test by sourceSets.getting
+            val iosSimulatorArm64Test by getting
             iosSimulatorArm64Test.dependsOn(iosTest)
         }
 
@@ -120,10 +119,16 @@ if (project.property("firebase-common.skipIosTests") == "true") {
     }
 }
 
+if (project.property("firebase-common.skipJsTests") == "true") {
+    tasks.forEach {
+        if (it.name.contains("js", true) && it.name.contains("test", true)) { it.enabled = false }
+    }
+}
+
 signing {
     val signingKey: String? by project
     val signingPassword: String? by project
     useInMemoryPgpKeys(signingKey, signingPassword)
-    sign(publishing.publications)
+//    sign(publishing.publications)
 }
 

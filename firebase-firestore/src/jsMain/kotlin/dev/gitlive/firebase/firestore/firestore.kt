@@ -4,56 +4,59 @@
 
 package dev.gitlive.firebase.firestore
 
-import dev.gitlive.firebase.*
-import dev.gitlive.firebase.externals.firestore.*
+import dev.gitlive.firebase.Firebase
+import dev.gitlive.firebase.FirebaseApp
+import dev.gitlive.firebase.FirebaseException
+import dev.gitlive.firebase.decode
+import dev.gitlive.firebase.encode
+import dev.gitlive.firebase.firestore.externals.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.await
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.promise
 import kotlinx.serialization.DeserializationStrategy
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationStrategy
 import kotlin.js.json
-import dev.gitlive.firebase.externals.firestore.CollectionReference as JsCollectionReference
-import dev.gitlive.firebase.externals.firestore.DocumentChange as JsDocumentChange
-import dev.gitlive.firebase.externals.firestore.DocumentReference as JsDocumentReference
-import dev.gitlive.firebase.externals.firestore.DocumentSnapshot as JsDocumentSnapshot
-import dev.gitlive.firebase.externals.firestore.FieldPath as JsFieldPath
-import dev.gitlive.firebase.externals.firestore.Query as JsQuery
-import dev.gitlive.firebase.externals.firestore.QuerySnapshot as JsQuerySnapshot
-import dev.gitlive.firebase.externals.firestore.SnapshotMetadata as JsSnapshotMetadata
-import dev.gitlive.firebase.externals.firestore.Transaction as JsTransaction
-import dev.gitlive.firebase.externals.firestore.WriteBatch as JsWriteBatch
-import dev.gitlive.firebase.externals.firestore.arrayRemove as jsArrayRemove
-import dev.gitlive.firebase.externals.firestore.arrayUnion as jsArrayUnion
-import dev.gitlive.firebase.externals.firestore.endAt as jsEndAt
-import dev.gitlive.firebase.externals.firestore.endBefore as jsEndBefore
-import dev.gitlive.firebase.externals.firestore.increment as jsIncrement
-import dev.gitlive.firebase.externals.firestore.updateDoc as jsUpdate
-import dev.gitlive.firebase.externals.firestore.limit as jsLimit
-import dev.gitlive.firebase.externals.firestore.startAfter as jsStartAfter
-import dev.gitlive.firebase.externals.firestore.startAt as jsStartAt
-import dev.gitlive.firebase.externals.firestore.where as jsWhere
-
-@PublishedApi
-internal inline fun <reified T> decode(value: Any?): T =
-    decode(value) { it.takeIf { it.asDynamic().toMillis != undefined }?.asDynamic().toMillis() as? Double }
-
-internal fun <T> decode(strategy: DeserializationStrategy<T>, value: Any?): T =
-    decode(strategy, value) { it.takeIf { it.asDynamic().toMillis != undefined }?.asDynamic().toMillis() as? Double }
-
-@PublishedApi
-internal inline fun <reified T> encode(value: T, shouldEncodeElementDefault: Boolean) =
-    encode(value, shouldEncodeElementDefault, serverTimestamp())
-
-private fun <T> encode(strategy: SerializationStrategy<T> , value: T, shouldEncodeElementDefault: Boolean): Any? =
-    encode(strategy, value, shouldEncodeElementDefault, serverTimestamp())
+import dev.gitlive.firebase.firestore.externals.CollectionReference as JsCollectionReference
+import dev.gitlive.firebase.firestore.externals.DocumentChange as JsDocumentChange
+import dev.gitlive.firebase.firestore.externals.DocumentReference as JsDocumentReference
+import dev.gitlive.firebase.firestore.externals.DocumentSnapshot as JsDocumentSnapshot
+import dev.gitlive.firebase.firestore.externals.FieldPath as JsFieldPath
+import dev.gitlive.firebase.firestore.externals.Query as JsQuery
+import dev.gitlive.firebase.firestore.externals.QuerySnapshot as JsQuerySnapshot
+import dev.gitlive.firebase.firestore.externals.SnapshotMetadata as JsSnapshotMetadata
+import dev.gitlive.firebase.firestore.externals.Transaction as JsTransaction
+import dev.gitlive.firebase.firestore.externals.WriteBatch as JsWriteBatch
+import dev.gitlive.firebase.firestore.externals.arrayRemove as jsArrayRemove
+import dev.gitlive.firebase.firestore.externals.arrayUnion as jsArrayUnion
+import dev.gitlive.firebase.firestore.externals.endAt as jsEndAt
+import dev.gitlive.firebase.firestore.externals.endBefore as jsEndBefore
+import dev.gitlive.firebase.firestore.externals.increment as jsIncrement
+import dev.gitlive.firebase.firestore.externals.limit as jsLimit
+import dev.gitlive.firebase.firestore.externals.startAfter as jsStartAfter
+import dev.gitlive.firebase.firestore.externals.startAt as jsStartAt
+import dev.gitlive.firebase.firestore.externals.updateDoc as jsUpdate
+import dev.gitlive.firebase.firestore.externals.where as jsWhere
 
 actual val Firebase.firestore get() =
     rethrow { FirebaseFirestore(getFirestore()) }
 
 actual fun Firebase.firestore(app: FirebaseApp) =
     rethrow { FirebaseFirestore(getFirestore(app.js)) }
+
+/** Helper method to perform an update operation. */
+private fun <R> performUpdate(
+    fieldsAndValues: Array<out Pair<String, Any?>>,
+    update: (String, Any?, Array<Any?>) -> R
+) = performUpdate(fieldsAndValues, { it }, { encode(it, true) }, update)
+
+/** Helper method to perform an update operation. */
+private fun <R> performUpdate(
+    fieldsAndValues: Array<out Pair<FieldPath, Any?>>,
+    update: (dev.gitlive.firebase.firestore.externals.FieldPath, Any?, Array<Any?>) -> R
+) = performUpdate(fieldsAndValues, { it.js }, { encode(it, true) }, update)
 
 actual class FirebaseFirestore(jsFirestore: Firestore) {
 
@@ -134,27 +137,15 @@ actual class WriteBatch(val js: JsWriteBatch) {
             .let { this }
 
     actual fun update(documentRef: DocumentReference, vararg fieldsAndValues: Pair<String, Any?>) = rethrow {
-        js.takeUnless { fieldsAndValues.isEmpty() }
-            ?.update(
-                documentRef.js,
-                fieldsAndValues[0].first,
-                fieldsAndValues[0].second,
-                *fieldsAndValues.drop(1).flatMap { (field, value) ->
-                    listOf(field, value?.let { encode(value, true) })
-                }.toTypedArray()
-            )
+        performUpdate(fieldsAndValues) { field, value, moreFieldsAndValues ->
+            js.update(documentRef.js, field, value, *moreFieldsAndValues)
+        }
     }.let { this }
 
     actual fun update(documentRef: DocumentReference, vararg fieldsAndValues: Pair<FieldPath, Any?>) = rethrow {
-        js.takeUnless { fieldsAndValues.isEmpty() }
-            ?.update(
-                documentRef.js,
-                fieldsAndValues[0].first.js,
-                fieldsAndValues[0].second,
-                *fieldsAndValues.flatMap { (field, value) ->
-                    listOf(field.js, value?.let { encode(value, true) })
-                }.toTypedArray()
-            )
+        performUpdate(fieldsAndValues) { field, value, moreFieldsAndValues ->
+            js.update(documentRef.js, field, value, *moreFieldsAndValues)
+        }
     }.let { this }
 
     actual fun delete(documentRef: DocumentReference) =
@@ -200,27 +191,15 @@ actual class Transaction(val js: JsTransaction) {
             .let { this }
 
     actual fun update(documentRef: DocumentReference, vararg fieldsAndValues: Pair<String, Any?>) = rethrow {
-        js.takeUnless { fieldsAndValues.isEmpty() }
-            ?.update(
-                documentRef.js,
-                fieldsAndValues[0].first,
-                fieldsAndValues[0].second,
-                *fieldsAndValues.drop(1).flatMap { (field, value) ->
-                    listOf(field, value?.let { encode(it, true) })
-                }.toTypedArray()
-            )
+        performUpdate(fieldsAndValues) { field, value, moreFieldsAndValues ->
+            js.update(documentRef.js, field, value, *moreFieldsAndValues)
+        }
     }.let { this }
 
     actual fun update(documentRef: DocumentReference, vararg fieldsAndValues: Pair<FieldPath, Any?>) = rethrow {
-        js.takeUnless { fieldsAndValues.isEmpty() }
-            ?.update(
-                documentRef.js,
-                fieldsAndValues[0].first.js,
-                fieldsAndValues[0].second,
-                *fieldsAndValues.flatMap { (field, value) ->
-                    listOf(field.js, value?.let { encode(it, true)!! })
-                }.toTypedArray()
-            )
+        performUpdate(fieldsAndValues) { field, value, moreFieldsAndValues ->
+            js.update(documentRef.js, field, value, *moreFieldsAndValues)
+        }
     }.let { this }
 
     actual fun delete(documentRef: DocumentReference) =
@@ -269,29 +248,15 @@ actual class DocumentReference(val js: JsDocumentReference) {
         rethrow { jsUpdate(js, encode(strategy, data, encodeDefaults)!!).await() }
 
     actual suspend fun update(vararg fieldsAndValues: Pair<String, Any?>) = rethrow {
-        js.takeUnless { fieldsAndValues.isEmpty() }?.let {
-            jsUpdate(
-                it,
-                fieldsAndValues[0].first,
-                fieldsAndValues[0].second,
-                *fieldsAndValues.drop(1).flatMap { (field, value) ->
-                    listOf(field, value?.let { encode(it, true) })
-                }.toTypedArray()
-            ).await()
-        }
+        performUpdate(fieldsAndValues) { field, value, moreFieldsAndValues ->
+            jsUpdate(js, field, value, *moreFieldsAndValues)
+        }?.await()
     }.run { Unit }
 
     actual suspend fun update(vararg fieldsAndValues: Pair<FieldPath, Any?>) = rethrow {
-        js.takeUnless { fieldsAndValues.isEmpty() }?.let {
-            jsUpdate(
-                it,
-                fieldsAndValues[0].first.js,
-                fieldsAndValues[0].second,
-                *fieldsAndValues.flatMap { (field, value) ->
-                    listOf(field.js, value?.let { encode(it, true)!! })
-                }.toTypedArray()
-            ).await()
-        }
+        performUpdate(fieldsAndValues) { field, value, moreFieldsAndValues ->
+            jsUpdate(js, field, value, *moreFieldsAndValues)
+        }?.await()
     }.run { Unit }
 
     actual suspend fun delete() = rethrow { deleteDoc(js).await() }
@@ -481,14 +446,28 @@ actual class FieldPath private constructor(val js: JsFieldPath) {
     actual val documentId: FieldPath get() = FieldPath(JsFieldPath.documentId)
 }
 
-actual object FieldValue {
-    actual val serverTimestamp: Double = Double.POSITIVE_INFINITY
-    actual val delete: Any get() = rethrow { deleteField() }
-    actual fun increment(value: Int): Any = rethrow { jsIncrement(value) }
-    actual fun arrayUnion(vararg elements: Any): Any = rethrow { jsArrayUnion(*elements) }
-    actual fun arrayRemove(vararg elements: Any): Any = rethrow { jsArrayRemove(*elements) }
-    @JsName("deprecatedDelete")
-    actual fun delete(): Any = delete
+/** Represents a platform specific Firebase FieldValue. */
+private typealias NativeFieldValue = dev.gitlive.firebase.firestore.externals.FieldValue
+
+/** Represents a Firebase FieldValue. */
+@Serializable(with = FieldValueSerializer::class)
+actual class FieldValue internal actual constructor(internal actual val nativeValue: Any) {
+    init {
+        require(nativeValue is NativeFieldValue)
+    }
+    override fun equals(other: Any?): Boolean =
+        this === other || other is FieldValue &&
+                (nativeValue as NativeFieldValue).isEqual(other.nativeValue as NativeFieldValue)
+    override fun hashCode(): Int = nativeValue.hashCode()
+    override fun toString(): String = nativeValue.toString()
+
+    actual companion object {
+        actual val serverTimestamp: FieldValue get() = rethrow { FieldValue(serverTimestamp()) }
+        actual val delete: FieldValue get() = rethrow { FieldValue(deleteField()) }
+        actual fun increment(value: Int): FieldValue = rethrow { FieldValue(jsIncrement(value)) }
+        actual fun arrayUnion(vararg elements: Any): FieldValue = rethrow { FieldValue(jsArrayUnion(*elements)) }
+        actual fun arrayRemove(vararg elements: Any): FieldValue = rethrow { FieldValue(jsArrayRemove(*elements)) }
+    }
 }
 
 //actual data class FirebaseFirestoreSettings internal constructor(

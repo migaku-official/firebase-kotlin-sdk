@@ -12,14 +12,14 @@ The following libraries are available for the various Firebase products.
 
 | Service or Product	                                                             | Gradle Dependency                                                                                                            | API Coverage                                                                                                                                                             |
 |---------------------------------------------------------------------------------|:-----------------------------------------------------------------------------------------------------------------------------|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| [Authentication](https://firebase.google.com/docs/auth)                         | [`dev.gitlive:firebase-auth:1.8.2-migaku`](https://github.com/migaku-official/firebase-kotlin-sdk/packages/1781113)                   | [![80%](https://img.shields.io/badge/-80%25-green?style=flat-square)](/firebase-auth/src/commonMain/kotlin/dev/gitlive/firebase/auth/auth.kt)                            |
-| [Realtime Database](https://firebase.google.com/docs/database)                  | [`dev.gitlive:firebase-database:1.8.2-migaku`](https://github.com/migaku-official/firebase-kotlin-sdk/packages/1781114)           | [![70%](https://img.shields.io/badge/-70%25-orange?style=flat-square)](/firebase-database/src/commonMain/kotlin/dev/gitlive/firebase/database/database.kt)               |
-| [Cloud Firestore](https://firebase.google.com/docs/firestore)                   | [`dev.gitlive:firebase-firestore:1.8.2-migaku`](https://github.com/migaku-official/firebase-kotlin-sdk/packages/1781111)         | [![60%](https://img.shields.io/badge/-60%25-orange?style=flat-square)](/firebase-firestore/src/commonMain/kotlin/dev/gitlive/firebase/firestore/firestore.kt)            |
-| [Cloud Functions](https://firebase.google.com/docs/functions)                   | [`dev.gitlive:firebase-functions:1.8.2-migaku`](https://github.com/migaku-official/firebase-kotlin-sdk/packages/1781112)         | [![80%](https://img.shields.io/badge/-80%25-green?style=flat-square)](/firebase-functions/src/commonMain/kotlin/dev/gitlive/firebase/functions/functions.kt)             |
-| [Cloud Messaging](https://firebase.google.com/docs/cloud-messaging)             | [`dev.gitlive:firebase-messaging:1.8.2-migaku`](https://search.maven.org/artifact/dev.gitlive/firebase-messaging/1.8.1/pom)         | ![0%](https://img.shields.io/badge/-0%25-lightgrey?style=flat-square)                                                                                                    |
-| [Cloud Storage](https://firebase.google.com/docs/storage)                       | [`dev.gitlive:firebase-storage:1.8.2-migaku`](https://search.maven.org/artifact/dev.gitlive/firebase-storage/1.8.1/pom)             | ![0%](https://img.shields.io/badge/-0%25-lightgrey?style=flat-square)                                                                                                    |
-| [Installations](https://firebase.google.com/docs/projects/manage-installations) | [`dev.gitlive:firebase-installations:1.8.2-migaku`](https://github.com/migaku-official/firebase-kotlin-sdk/packages/1781110) | [![90%](https://img.shields.io/badge/-90%25-green?style=flat-square)](/firebase-installations/src/commonMain/kotlin/dev/gitlive/firebase/installations/installations.kt) |
-| [Remote Config](https://firebase.google.com/docs/remote-config)                 | [`dev.gitlive:firebase-config:1.8.2-migaku`](https://github.com/migaku-official/firebase-kotlin-sdk/packages/1781109)               | ![20%](https://img.shields.io/badge/-20%25-orange?style=flat-square)                                                                                                     |
+| [Authentication](https://firebase.google.com/docs/auth)                         | [`dev.gitlive:firebase-auth:1.8.3-migaku`](https://github.com/migaku-official/firebase-kotlin-sdk/packages/1781113)                   | [![80%](https://img.shields.io/badge/-80%25-green?style=flat-square)](/firebase-auth/src/commonMain/kotlin/dev/gitlive/firebase/auth/auth.kt)                            |
+| [Realtime Database](https://firebase.google.com/docs/database)                  | [`dev.gitlive:firebase-database:1.8.3-migaku`](https://github.com/migaku-official/firebase-kotlin-sdk/packages/1781114)           | [![70%](https://img.shields.io/badge/-70%25-orange?style=flat-square)](/firebase-database/src/commonMain/kotlin/dev/gitlive/firebase/database/database.kt)               |
+| [Cloud Firestore](https://firebase.google.com/docs/firestore)                   | [`dev.gitlive:firebase-firestore:1.8.3-migaku`](https://github.com/migaku-official/firebase-kotlin-sdk/packages/1781111)         | [![60%](https://img.shields.io/badge/-60%25-orange?style=flat-square)](/firebase-firestore/src/commonMain/kotlin/dev/gitlive/firebase/firestore/firestore.kt)            |
+| [Cloud Functions](https://firebase.google.com/docs/functions)                   | [`dev.gitlive:firebase-functions:1.8.3-migaku`](https://github.com/migaku-official/firebase-kotlin-sdk/packages/1781112)         | [![80%](https://img.shields.io/badge/-80%25-green?style=flat-square)](/firebase-functions/src/commonMain/kotlin/dev/gitlive/firebase/functions/functions.kt)             |
+| [Cloud Messaging](https://firebase.google.com/docs/cloud-messaging)             | [`dev.gitlive:firebase-messaging:1.8.3-migaku`](https://search.maven.org/artifact/dev.gitlive/firebase-messaging/1.8.1/pom)         | ![0%](https://img.shields.io/badge/-0%25-lightgrey?style=flat-square)                                                                                                    |
+| [Cloud Storage](https://firebase.google.com/docs/storage)                       | [`dev.gitlive:firebase-storage:1.8.3-migaku`](https://search.maven.org/artifact/dev.gitlive/firebase-storage/1.8.1/pom)             | ![0%](https://img.shields.io/badge/-0%25-lightgrey?style=flat-square)                                                                                                    |
+| [Installations](https://firebase.google.com/docs/projects/manage-installations) | [`dev.gitlive:firebase-installations:1.8.3-migaku`](https://github.com/migaku-official/firebase-kotlin-sdk/packages/1781110) | [![90%](https://img.shields.io/badge/-90%25-green?style=flat-square)](/firebase-installations/src/commonMain/kotlin/dev/gitlive/firebase/installations/installations.kt) |
+| [Remote Config](https://firebase.google.com/docs/remote-config)                 | [`dev.gitlive:firebase-config:1.8.3-migaku`](https://github.com/migaku-official/firebase-kotlin-sdk/packages/1781109)               | ![20%](https://img.shields.io/badge/-20%25-orange?style=flat-square)                                                                                                     |
 
 
 
@@ -205,21 +205,27 @@ If you are building a Kotlin multiplatform library which will be consumed from J
 
 ```json
 "dependencies": {
-  "@gitlive/firebase-auth": "1.8.2-migaku",
-  "@gitlive/firebase-config": "1.8.2-migaku",
-  "@gitlive/firebase-database": "1.8.2-migaku",
-  "@gitlive/firebase-firestore": "1.8.2-migaku",
-  "@gitlive/firebase-functions": "1.8.2-migaku",
-  "@gitlive/firebase-installations": "1.8.2-migaku",
-  "@gitlive/firebase-messaging": "1.8.2-migaku",
-  "@gitlive/firebase-storage": "1.8.2-migaku"
+  "@gitlive/firebase-auth": "1.8.3-migaku",
+  "@gitlive/firebase-config": "1.8.3-migaku",
+  "@gitlive/firebase-database": "1.8.3-migaku",
+  "@gitlive/firebase-firestore": "1.8.3-migaku",
+  "@gitlive/firebase-functions": "1.8.3-migaku",
+  "@gitlive/firebase-installations": "1.8.3-migaku",
+  "@gitlive/firebase-messaging": "1.8.3-migaku",
+  "@gitlive/firebase-storage": "1.8.3-migaku"
 }
 ```
 
 ### Publication
 
-If you would like to publish this Kotlin multiplatform library of this SDK, use the following command:
+If you would like to publish this Kotlin multiplatform library of this SDK, use the following steps:
 
+In `gradle.properties`, disable parallel:
+```properties
+org.gradle.parallel=false
+```
+
+And publish command:
 ```bash
 $ ./gradlew publishAllPublicationsToMavenrepository -PGITHUB_USER=<YOUR_GITHUB_USERNAME> -PGITHUB_TOKEN=<YOUR_GITHUB_PAT>
 ```

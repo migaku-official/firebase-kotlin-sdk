@@ -14,7 +14,7 @@ expect class FirebaseStorage {
     fun reference(location: String): StorageReference
 }
 
-expect abstract class File
+expect class File
 
 sealed class Progress(val bytesTransferred: Number, val totalByteCount: Number) {
     class Running internal constructor(bytesTransferred: Number, totalByteCount: Number): Progress(bytesTransferred, totalByteCount)
@@ -22,9 +22,9 @@ sealed class Progress(val bytesTransferred: Number, val totalByteCount: Number) 
 }
 
 interface ProgressFlow : Flow<Progress> {
-    fun pause(): Boolean
-    fun resume(): Boolean
-    fun cancel(): Boolean
+    fun pause()
+    fun resume()
+    fun cancel()
 }
 
 expect class StorageReference {

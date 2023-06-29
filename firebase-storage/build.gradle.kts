@@ -50,10 +50,10 @@ kotlin {
         cocoapods {
             ios.deploymentTarget = "11.0"
             framework {
-                baseName = "FirebaseFunctions"
+                baseName = "FirebaseStorage"
             }
             noPodspec()
-            pod("FirebaseInstallations") {
+            pod("FirebaseStorage") {
                 version = "10.7.0"
             }
         }

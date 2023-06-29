@@ -5,12 +5,12 @@ import dev.gitlive.firebase.FirebaseApp
 import dev.gitlive.firebase.FirebaseException
 import dev.gitlive.firebase.storage.externals.*
 import dev.gitlive.firebase.storage.externals.FirebaseStorage
+import kotlinx.coroutines.await
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.await
 
 actual val Firebase.storage
     get() = FirebaseStorage(getStorage())
@@ -25,7 +25,7 @@ actual class FirebaseStorage internal constructor(val js: FirebaseStorage) {
     actual fun reference(location: String) = rethrow { StorageReference(ref(js, location)) }
 }
 
-actual abstract class File
+actual typealias File = org.w3c.files.File
 
 actual class StorageReference internal constructor(val js: dev.gitlive.firebase.storage.externals.StorageReference) {
 
@@ -56,9 +56,9 @@ actual class StorageReference internal constructor(val js: dev.gitlive.firebase.
 
         return object : ProgressFlow {
             override suspend fun collect(collector: FlowCollector<Progress>) = collector.emitAll(flow)
-            override fun pause() = js.pause()
-            override fun resume() = js.resume()
-            override fun cancel() = js.cancel()
+            override fun pause() = js.pause().run {}
+            override fun resume() = js.resume().run {}
+            override fun cancel() = js.cancel().run {}
         }
     }
 }

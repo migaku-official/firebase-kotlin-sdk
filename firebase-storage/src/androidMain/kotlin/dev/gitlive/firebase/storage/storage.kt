@@ -29,16 +29,16 @@ actual class FirebaseStorage internal constructor(val android: com.google.fireba
     actual fun reference(location: String )= StorageReference(android.getReference(location))
 }
 
-actual typealias File = Uri
+actual class File(val uri: Uri)
 
 actual class StorageReference internal constructor(val android: com.google.firebase.storage.StorageReference) {
 
     actual suspend fun getDownloadUrl() = android.downloadUrl.await().toString()
 
-    actual suspend fun putFile(file: File) = android.putFile(file).await().run {}
+    actual suspend fun putFile(file: File) = android.putFile(file.uri).await().run {}
 
     actual fun putFileResumable(file: File): ProgressFlow {
-        val android = android.putFile(file)
+        val android = android.putFile(file.uri)
 
         val flow = callbackFlow {
             val onCanceledListener = OnCanceledListener { cancel() }
@@ -59,12 +59,11 @@ actual class StorageReference internal constructor(val android: com.google.fireb
 
         return object : ProgressFlow {
             override suspend fun collect(collector: FlowCollector<Progress>) = collector.emitAll(flow)
-            override fun pause() = android.pause()
-            override fun resume() = android.resume()
-            override fun cancel() = android.cancel()
+            override fun pause() = android.pause().run {}
+            override fun resume() = android.resume().run {}
+            override fun cancel() = android.cancel().run {}
         }
     }
 }
-
 
 actual typealias FirebaseStorageException = com.google.firebase.storage.StorageException

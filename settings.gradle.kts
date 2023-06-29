@@ -6,6 +6,7 @@ include(
     "firebase-database",
     "firebase-firestore",
     "firebase-functions",
+    "firebase-storage",
     "firebase-installations",
     "firebase-perf",
     "firebase-crashlytics"

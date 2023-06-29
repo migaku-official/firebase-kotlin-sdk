@@ -1,8 +1,8 @@
 {
-  "name": "@gitlive/firebase-auth",
+  "name": "@gitlive/firebase-storage",
   "version": "1.8.4-migaku",
   "description": "Wrapper around firebase for usage in Kotlin Multiplatform projects",
-  "main": "firebase-auth.js",
+  "main": "firebase-storage.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -23,7 +23,7 @@
   },
   "homepage": "https://github.com/GitLiveApp/firebase-kotlin-sdk",
   "dependencies": {
-    "@gitlive/firebase-app": "1.8.6-migaku",
+    "@gitlive/firebase-app": "1.8.4-migaku",
     "firebase": "9.19.1",
     "kotlin": "1.8.20",
     "kotlinx-coroutines-core": "1.6.4"

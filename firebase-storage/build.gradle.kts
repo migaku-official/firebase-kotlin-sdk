@@ -2,7 +2,7 @@
  * Copyright (c) 2020 GitLive Ltd.  Use of this source code is governed by the Apache 2.0 license.
  */
 
-version = project.property("firebase-installations.version") as String
+version = project.property("firebase-storage.version") as String
 
 plugins {
     id("com.android.library")
@@ -50,10 +50,10 @@ kotlin {
         cocoapods {
             ios.deploymentTarget = "11.0"
             framework {
-                baseName = "FirebaseInstallations"
+                baseName = "FirebaseStorage"
             }
             noPodspec()
-            pod("FirebaseInstallations") {
+            pod("FirebaseStorage") {
                 version = "10.7.0"
             }
         }
@@ -95,7 +95,7 @@ kotlin {
 
         val androidMain by getting {
             dependencies {
-                api("com.google.firebase:firebase-installations")
+                api("com.google.firebase:firebase-storage")
             }
         }
 

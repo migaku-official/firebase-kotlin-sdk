@@ -44,6 +44,8 @@ jobs:
         run: ./gradlew :firebase-functions:publish
       - name: Publish Firebase Installations
         run: ./gradlew :firebase-installations:publish
+      - name: Publish Firebase Storage
+        run: ./gradlew :firebase-storage:publish
       - name: Publish Firebase Performance
         run: ./gradlew :firebase-perf:publish
       - name: Publish Firebase Crashlytics

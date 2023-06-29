@@ -1,8 +1,8 @@
 {
-  "name": "@gitlive/firebase-functions",
+  "name": "@gitlive/firebase-storage",
   "version": "1.8.4-migaku",
   "description": "Wrapper around firebase for usage in Kotlin Multiplatform projects",
-  "main": "firebase-functions.js",
+  "main": "firebase-storage.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
